@@ -250,23 +250,24 @@ Implement the Naive Bayes model, including Laplacian smoothing and calculating c
 
 #### Bayes' Theorem:
 
-\[ P(A|B) = \frac{P(B|A) \cdot P(A)}{P(B)} \]
+- P(A|B) = (P(B|A) * P(A)) / P(B)
 
 #### Conditional Probability:
 
-\[ P(A|B) = \frac{P(A \cap B)}{P(B)} \]
+- P(A|B) = P(A ∩ B) / P(B)
 
 #### Laplacian Smoothing:
 
-\[ P(w|c) = \frac{count(w, c) + \alpha}{count(c) + \alpha \cdot V} \]
+- P(w|c) = (count(w, c) + α) / (count(c) + αV)
 
 #### Log Likelihood:
 
-\[ \text{log likelihood} = \log\left(\frac{P(w|pos)}{P(w|neg)}\right) \]
+- log likelihood = log(P(w|pos) / P(w|neg))
 
 #### Log Prior:
 
-\[ \text{log prior} = \log\left(\frac{\text{num\_positive\_tweets}}{\text{num\_negative\_tweets}}\right) \]
+- log prior = log(num_positive_tweets / num_negative_tweets)
+
 ```python
 # Section: Naive Bayes Model
 # Code snippet for implementing Naive Bayes model
