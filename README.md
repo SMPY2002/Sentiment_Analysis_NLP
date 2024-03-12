@@ -1,4 +1,4 @@
-# Sentiment Analysis using Naive Bayes Method
+# Sentiment Analysis using Naive Bayes Method (Learning Purpose)
 
 ## Overview
 
