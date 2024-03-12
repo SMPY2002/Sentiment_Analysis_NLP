@@ -1,5 +1,8 @@
 # Sentiment Analysis using Naive Bayes Method (Learning Purpose)
 
+
+Dataset :- Check it out [here](https://www.kaggle.com/datasets/kazanova/sentiment140/data))
+
 ## Overview
 
 Welcome to the Sentiment Analysis project! In this project, we implement a sentiment analysis model using the Naive Bayes method. What sets this project apart is that it does not rely on any standard machine learning libraries specifically designed for Naive Bayes classification. The goal is to showcase a manual, step-by-step implementation of the algorithm, providing a deeper understanding of the underlying principles.
@@ -24,7 +27,6 @@ Sentiment Analysis is a Natural Language Processing (NLP) task that involves det
 ## Necessary Libraries
 
 ```python
-# Section: Dataset
 # Importing necessary libraries
 import math 
 import numpy as np 
