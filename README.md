@@ -98,12 +98,8 @@ def stemming(content):
 new_df['stemmed_content'] = new_df['text'].apply(stemming)
 ```
 Output - 
-  target	 text	                                                stemmed_content
-0	0	Three cheers for fiber to the home... now we o...   	three cheer fiber home wait year
-1	1	looking something new..	                                look someth new
-2	1	Up having QT - feeling better this morning as ...	    qt feel better morn rememb god merci new everi...
-3	0	Ugh. Riddler had his revenge on me....	                ugh riddler reveng
-4	0	@lauren42 hope Yall have fun without me tomorr...	    lauren hope yall fun without tomorrow im jealo...
+![Screenshot 2024-03-12 074846](https://github.com/SMPY2002/Sentiment_Analysis_NLP/assets/118500436/af252421-b2d9-4392-bedf-91376aaf779f)
+
 
 ## Exploratory Data Analysis
 Explore the dataset to gain insights into class distribution, null values, and other relevant information.
@@ -143,23 +139,10 @@ df.head()
 df.info()
 ```
 Output
-	target	text
-0	0	@switchfoot http://twitpic.com/2y1zl - Awww, t...
-1	0	is upset that he can't update his Facebook by ...
-2	0	@Kenichan I dived many times for the ball. Man...
-3	0	my whole body feels itchy and like its on fire
-4	0	@nationwideclass no, it's not behaving at all....
 
-Information of dataframe - 
-<class 'pandas.core.frame.DataFrame'>
-RangeIndex: 1600000 entries, 0 to 1599999
-Data columns (total 2 columns):
- *   Column  Non-Null Count    Dtype 
----  ------  --------------    ----- 
- 0   target  1600000 non-null  int64 
- 1   text    1600000 non-null  object
-dtypes: int64(1), object(1)
-memory usage: 24.4+ MB
+
+![Screenshot 2024-03-12 075018](https://github.com/SMPY2002/Sentiment_Analysis_NLP/assets/118500436/eb6ebf27-e35c-4c52-8b98-fac36d4e9d5f)
+
 
 ## Word Clouds
 Generate word clouds to visually represent the most frequent words in positive and negative tweets.
@@ -232,16 +215,12 @@ print(f"Sum of negative values: {sum_negative}")
 print(f"Count of total unique words: {total_unique_words}")
 ```
 Output - 
-     unique_word positive negative total
-0  troyeatsbrain        0        1     1
-0          worri      168      156   324
-0            ozd        3        6     9
-0         imagen        1        0     1
-0        phadden        1        0     1
 
-Sum of positive values: 3135912
-Sum of negative values: 2986661
-Count of total unique words: 71283
+![Screenshot 2024-03-12 075130](https://github.com/SMPY2002/Sentiment_Analysis_NLP/assets/118500436/6249e18f-c1a9-4b0d-b8c1-1d71647d104b)
+
+![Screenshot 2024-03-12 075309](https://github.com/SMPY2002/Sentiment_Analysis_NLP/assets/118500436/17b28d8f-5afd-4669-84b8-0f425ad8693e)
+
+
 ## Naive Bayes Model
 
 Implement the Naive Bayes model, including Laplacian smoothing and calculating conditional probabilities.
@@ -267,9 +246,195 @@ Implement the Naive Bayes model, including Laplacian smoothing and calculating c
 #### Log Prior:
 
 - log prior = log(num_positive_tweets / num_negative_tweets)
+### Final Probability Function is  -
+![Screenshot 2024-03-12 075949](https://github.com/SMPY2002/Sentiment_Analysis_NLP/assets/118500436/25ef0016-fd44-4705-8947-2d40546445ae)
+![Screenshot 2024-03-12 080143](https://github.com/SMPY2002/Sentiment_Analysis_NLP/assets/118500436/a1a6e83c-647e-433b-9558-6ac959671407)
+![Screenshot 2024-03-12 080203](https://github.com/SMPY2002/Sentiment_Analysis_NLP/assets/118500436/60494cbc-d6ef-4103-aabc-cd8a8f0b4266)
 
 ```python
 # Section: Naive Bayes Model
 # Code snippet for implementing Naive Bayes model
 
+# Smoothing  (Laplacian smoothing)
+
+alpha = 1
+
+# Calculate conditional probabilities for each word
+word_freq_df['P(w|pos)'] = (word_freq_df['positive'] + alpha) / (sum_positive +  total_unique_words)
+word_freq_df['P(w|neg)'] = (word_freq_df['negative'] + alpha) / (sum_negative +  total_unique_words)
+
+# Display the updated DataFrame with conditional probabilities
+print(word_freq_df.head())
+
 ```
+```python
+# Apply Laplacian smoothing and compute lambda(log likelihood) score for each word
+
+# Laplacian smoothing function
+def laplacian_smoothing(positive_freq, negative_freq, total_unique_words):
+    smoothing_factor = 1  # Laplacian smoothing factor
+    
+    # Calculate conditional probabilities using Laplacian smoothing
+    prob_pos = (positive_freq + smoothing_factor) / (sum_positive + total_unique_words)
+    prob_neg = (negative_freq + smoothing_factor) / (sum_negative + total_unique_words)
+    
+    # Calculate probability ratio
+    ratio_w = prob_pos / prob_neg
+    
+    # Compute lambda score
+    lambda_w = np.log(ratio_w)
+    
+    return lambda_w
+
+# Apply Laplacian smoothing and compute lambda(log likelihood) score for each word
+word_freq_df['lambda_score'] = word_freq_df.apply(
+    lambda row: laplacian_smoothing(row['positive'], row['negative'], total_unique_words),
+    axis=1
+)
+
+# Save the DataFrame to a CSV file
+word_freq_df.to_csv('word_frequency.csv', index=False)
+
+# Display the updated DataFrame with lambda scores
+print(word_freq_df.head())
+```
+```python
+# Log Prior Calculation - 
+# Step 1: Count the number of positive and negative tweets
+num_positive_tweets = sum(new_df['target'] == 1)
+num_negative_tweets = sum(new_df['target'] == 0)
+
+# Step 2: Calculate the ratio of positive to negative tweets
+ratio_pos_neg = num_positive_tweets / num_negative_tweets
+
+# Step 3: Calculate the log prior
+log_prior = np.log(ratio_pos_neg)
+
+# Step 4: Save the computed log prior value in a .txt file
+with open('log_prior.txt', 'w') as file:
+    file.write(str(log_prior))
+
+# Display the results
+print(f"Number of positive tweets: {num_positive_tweets}")
+print(f"Number of negative tweets: {num_negative_tweets}")
+print(f"Ratio of positive to negative tweets: {ratio_pos_neg}")
+print(f"Log prior: {log_prior}")
+```
+Output -
+![Screenshot 2024-03-12 075517](https://github.com/SMPY2002/Sentiment_Analysis_NLP/assets/118500436/ab63e083-8ee5-4a88-95dd-68188e87cc58)
+
+# Note :- As you see log prior is zero (it means that your dataset is balanced , if not balanced then it not become zero )
+
+## Testing Phase
+Test the Naive Bayes model on a user-provided tweet to predict its sentiment (positive or negative).
+	1. Loading the Word_Frequency csv file which is saved during model training
+ 	2. Loading the log prior calculation which is saved as log_prior.txt file
+Doing the same task for user tweet also, first pre-processed its entered tweet , then with the help of above loading files we calculate its sentiment.(See the code below)
+Note :- It is always advisable to store the Pre-Processed tweets , its frequency count and other relevant things , so that when required then we do not run all the time taken functions (when dataset is very large, then it is more computationallt Expensive.)
+```python
+import pandas as pd
+import re
+from nltk.corpus import stopwords
+from nltk.stem import PorterStemmer
+
+# Load the precomputed data and models
+loaded_word_freq_df = pd.read_csv('word_frequency.csv')
+# loaded_log_prior = log_prior
+with open('log_prior.txt', 'r') as file:
+        loaded_log_prior = float(file.read())
+
+# Define the Stemming Function
+def stemming(content):
+    # Remove non-alphabetic characters using regular expression
+    stemmed_content = re.sub('[^a-zA-Z]', ' ', content)
+    
+    # Convert to lowercase
+    stemmed_content = stemmed_content.lower()
+    
+    # Tokenize the text into words
+    stemmed_content = stemmed_content.split()
+    
+    # Apply stemming using Porter Stemmer, and exclude stopwords
+    final_stopwords = set(stopwords.words('english')) - set(['not', 'no', 'against', 'nor'])
+    port_stem = PorterStemmer()
+    stemmed_content = [port_stem.stem(word) for word in stemmed_content if not word in final_stopwords]
+    
+    # Join the stemmed words into a single string
+    stemmed_content = ' '.join(stemmed_content)
+    
+    return stemmed_content
+
+# Define the log likelihood calculation function
+def calculate_log_likelihood(stemmed_input):
+    # Split the input into words
+    words = stemmed_input.split()
+
+    # Initialize likelihoods
+    log_likelihood_pos = 0
+    log_likelihood_neg = 0
+
+    # Iterate through words and calculate log likelihood
+    for word in words:
+        if word in loaded_word_freq_df['unique_word'].values:
+            # Get the lambda score for the word
+            lambda_w = loaded_word_freq_df.loc[loaded_word_freq_df['unique_word'] == word, 'lambda_score'].values[0]
+
+            # Update log likelihoods
+            log_likelihood_pos += lambda_w if lambda_w > 0 else 0
+            log_likelihood_neg += -lambda_w if lambda_w < 0 else 0
+
+    return log_likelihood_pos, log_likelihood_neg
+
+# Define the prediction function
+def predict_sentiment(log_likelihood_pos, log_likelihood_neg):
+    # Calculate the final log likelihoods
+    log_likelihood_pos += loaded_log_prior
+    log_likelihood_neg += loaded_log_prior
+
+    # Determine the predicted sentiment class
+    predicted_class = 1 if log_likelihood_pos > log_likelihood_neg else 0
+    return predicted_class
+
+# Input a new tweet
+new_tweet = input("Enter the tweet: ")
+
+# Preprocess the input tweet
+preprocessed_tweet = stemming(new_tweet)
+
+# Calculate log likelihood
+log_likelihood_pos, log_likelihood_neg = calculate_log_likelihood(preprocessed_tweet)
+
+# Make predictions
+predicted_sentiment = predict_sentiment(log_likelihood_pos, log_likelihood_neg)
+
+print("Your Entered Tweet : -",new_tweet)
+
+# Display the result
+if predicted_sentiment == 1:
+    print("Positive sentiment!")
+else:
+    print("Negative sentiment!")
+
+```
+Output - 
+![Screenshot 2024-03-12 075824](https://github.com/SMPY2002/Sentiment_Analysis_NLP/assets/118500436/ab99c8a6-8ccb-4f6b-87e4-812eadaa7078)
+
+## Accuracy on Unseen Tweets
+Evaluate the accuracy of the model on unseen tweets from the remaining dataset.
+```python
+# Create a DataFrame with the remaining tweets for testing
+remaining_tweets = df[~df.index.isin(new_df.index)].head(5000)
+
+# Create a new column for predicted labels in the remaining_tweets DataFrame
+remaining_tweets['predicted_target'] = remaining_tweets['text'].apply(lambda tweet: predict_sentiment(*calculate_log_likelihood(preprocess_input_tweet(tweet), word_freq_df), log_prior=log_prior))
+
+# Calculate accuracy
+accuracy = sum(remaining_tweets['target'] == remaining_tweets['predicted_target']) / len(remaining_tweets)
+
+# Display the accuracy 
+print(f"Accuracy on remaining tweets: {accuracy * 100:.2f}%")
+```
+# Output - Accuracy on unseen tweets is : 80.78%
+
+## Conclusion
+Congratulations! You've successfully implemented a Sentiment Analysis model using the Naive Bayes method. Feel free to explore further and customize the code to enhance the model's performance. Thank you for reading, and happy coding!                                                                                                          
